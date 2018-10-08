@@ -15,42 +15,46 @@ import java.io.File;
 /**
  * @author Ian Gumilang
  */
-public class Steps
+public class Steps extends StepsUtils
 {
-    private WebDriver driver;
-
     @Before
     public void establishedChromeDriver() {
         File app = new File("chromedriver");
 
         System.setProperty("webdriver.chrome.driver", app.getAbsolutePath());
 
-        driver= new ChromeDriver();
-        driver.manage().window().maximize();
+        setDriver(new ChromeDriver());
+        getDriver().manage().window().maximize();
+    }
+
+    @After
+    public void killDriver()
+    {
+        getDriver().close();
     }
 
     @When("^User navigate to kumparan website on web browser$")
     public void userNavigateToKumparanWebsiteOnWebBrowser() throws Throwable
     {
-        driver.get("https://kumparan.com");
+        getDriver().get("https://kumparan.com");
     }
 
-    @When("^User click Login with Google button$")
-    public void userClickLoginWithGoogleButton() throws Throwable
+    @When("^User click Login with facebook button$")
+    public void userClickLoginWithfacebookButton() throws Throwable
     {
         click(By.id("onesignal-popover-cancel-button"));
         waitUntilElementIsNotVisible(By.id("onesignal-popover-cancel-button"));
         click(By.xpath("//a[contains(@href,'login')]"));
 
         // Store the current window handle
-        String winHandleBefore = driver.getWindowHandle();
+        String winHandleBefore = getDriver().getWindowHandle();
 
         // Perform the click operation that opens new window
         click(By.xpath("//button[contains(@class,'btn-fb')]"));
 
         // Switch to new window opened
-        for(String winHandle : driver.getWindowHandles()){
-            driver.switchTo().window(winHandle);
+        for(String winHandle : getDriver().getWindowHandles()){
+            getDriver().switchTo().window(winHandle);
         }
 
         // Perform the actions on new window
@@ -59,53 +63,40 @@ public class Steps
         click(By.name("login"));
 
         // Switch back to original browser (first window)
-        driver.switchTo().window(winHandleBefore);
+        getDriver().switchTo().window(winHandleBefore);
 
         // Continue with original browser (first window)
         findElement(By.xpath("//*[contains(text(), 'Create Story')]"),60).isDisplayed();
     }
 
-    @After
-    public void killDriver()
+    @When("^User click Login with google button$")
+    public void userClickLoginWithgoogleButton() throws Throwable
     {
-        driver.close();
-    }
+        click(By.id("onesignal-popover-cancel-button"));
+        waitUntilElementIsNotVisible(By.id("onesignal-popover-cancel-button"));
+        click(By.xpath("//a[contains(@href,'login')]"));
 
-    private WebElement findElement(final By locator)
-    {
-        return findElement(locator,10);
-    }
+        // Store the current window handle
+        String winHandleBefore = getDriver().getWindowHandle();
 
-    private WebElement findElement(final By locator, long timeoutInSeconds)
-    {
-        WebElement we =  (new WebDriverWait(driver, timeoutInSeconds))
-                .until(ExpectedConditions.elementToBeClickable(locator));
+        // Perform the click operation that opens new window
+        click(By.xpath("//button[contains(@class,'btn-gplus')]"));
 
-        return we;
-    }
+        // Switch to new window opened
+        for(String winHandle : getDriver().getWindowHandles()){
+            getDriver().switchTo().window(winHandle);
+        }
 
-    private void click(final By locator)
-    {
-        findElement(locator, 10).click();
-    }
+        // Perform the actions on new window
+        sendKeys(By.id("identifierId"),"rama.jackiee@gmail.com");
+        click(By.xpath("//span[contains(text(), 'Berikutnya')]"));
+        sendKeys(By.xpath("//input[contains(@type, 'password')]"),"new280sunk677");
+        click(By.xpath("//span[contains(text(), 'Berikutnya')]"));
 
-    private void click(final By locator, long timeoutInSeconds)
-    {
-        findElement(locator, timeoutInSeconds).click();
-    }
+        // Switch back to original browser (first window)
+        getDriver().switchTo().window(winHandleBefore);
 
-    private void sendKeys(final By locator, CharSequence... keysToSend)
-    {
-        findElement(locator, 10).sendKeys(keysToSend);
-    }
-
-    private void sendKeys(final By locator, long timeoutInSeconds, CharSequence... keysToSend)
-    {
-        findElement(locator, timeoutInSeconds).sendKeys(keysToSend);
-    }
-
-    private void waitUntilElementIsNotVisible(final By locator)
-    {
-        new WebDriverWait(driver, 10).until(ExpectedConditions.invisibilityOfElementLocated(By.id("onesignal-popover-cancel-button")));
+        // Continue with original browser (first window)
+        findElement(By.xpath("//*[contains(text(), 'Create Story')]"),60).isDisplayed();
     }
 }
